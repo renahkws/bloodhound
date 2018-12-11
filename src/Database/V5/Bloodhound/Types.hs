@@ -113,6 +113,7 @@ module Database.V5.Bloodhound.Types
        , SearchType(..)
        , SearchResult(..)
        , ScrollId(..)
+       , Scrolls(..)
        , SearchHits(..)
        , TrackSortScores
        , From(..)
@@ -1053,7 +1054,8 @@ data BulkOperation =
   | BulkCreate IndexName MappingName DocId Value
   | BulkCreateEncoding IndexName MappingName DocId Encoding
   | BulkDelete IndexName MappingName DocId
-  | BulkUpdate IndexName MappingName DocId Value deriving (Eq, Show, Generic, Typeable)
+  | BulkUpdate IndexName MappingName DocId Value Bool 
+  deriving (Eq, Show, Generic, Typeable)
 
 {-| 'EsResult' describes the standard wrapper JSON document that you see in
     successful Elasticsearch lookups or lookups that couldn't find the document.
@@ -2050,6 +2052,9 @@ data SearchResult a =
   deriving (Eq, Read, Show, Generic, Typeable)
 
 newtype ScrollId = ScrollId Text deriving (Eq, Read, Show, Generic, Ord, ToJSON, FromJSON)
+
+data Scrolls = ScrollsAll | ScrollsMulti [ScrollId] | ScrollsSingle ScrollId 
+  deriving (Eq, Read, Show, Generic, Typeable)
 
 type Score = Maybe Double
 
@@ -3809,7 +3814,7 @@ commonHighlightPairs (Just (CommonHighlight chScore chForceSource chTag chEncode
     , "encoder" .= chEncoder
     , "no_match_size" .= chNoMatchSize
     , "highlight_query" .= chHighlightQuery
-    , "require_fieldMatch" .= chRequireFieldMatch]
+    , "require_field_match" .= chRequireFieldMatch]
     ++ highlightTagToPairs chTag
 
 
